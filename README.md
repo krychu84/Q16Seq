@@ -42,6 +42,8 @@ For every taxon in a sample:
 - **Groups:** wells of the same sample spiked with different standards (for example its λ1, λ2 and λ3 wells) can be given a common group name. The group value is the mean of the wells that pass the ROQ check. If none pass, all quantified wells are averaged and the group is marked with `*`.
 - **Copy numbers** are 16S rRNA gene copies per PCR reaction, i.e. per volume of DNA extract added (5 µL in the Q16Seq protocol). Convert them to copies per gram or per mL of sample with your own extraction and dilution factors. Divide by the 16S copy number of a taxon for genome or cell equivalents.
 
+![λ quantification panel](docs/report_lambda.png)
+
 The λ1 copy number comes from your own calibration of the λ-IS stock (for example against a mock community; see the Supplementary Material of the paper).
 
 ## Requirements

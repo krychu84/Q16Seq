@@ -19,7 +19,7 @@ Outputs, in the target folder:
 | `label_map.tsv` | every classifier label that changed: original → new |
 | `lineage_changes.tsv` | references whose lineage was corrected |
 
-Ready-made `.qza` files are attached to the [GitHub releases](https://github.com/krychu84/RT-RubyRed/releases). They were built from `MIMt_16s_311025` with QIIME 2 2024.5 and scikit-learn 1.4.2. Use them only with the same scikit-learn version; with any other version, build the classifier yourself.
+Ready-made `.qza` files are attached to the [GitHub releases](https://github.com/krychu84/Q16Seq/releases). They were built from `MIMt_16s_311025` with QIIME 2 2024.5 and scikit-learn 1.4.2. Use them only with the same scikit-learn version; with any other version, build the classifier yourself.
 
 ## Why
 
