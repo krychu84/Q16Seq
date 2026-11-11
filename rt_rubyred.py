@@ -69,6 +69,7 @@ def banner():
     pad = " " * max(0, (width - max(len(line) for line in q16)) // 2)
     print()
     print(C["gold"] + "\n".join(pad + line for line in q16) + C["off"])
+    print()
     print(C["ruby"] + art + C["off"])
     print(f"{C['grey']}  real-time rRNA amplicon classification + Q16Seq λ quantification  ·  v{VERSION}  ·  "
           f"Lukasz Krych, University of Copenhagen{C['off']}\n")
