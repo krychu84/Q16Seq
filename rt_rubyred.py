@@ -65,12 +65,13 @@ def banner():
         art = fh.read().rstrip("\n")
     with open(os.path.join(TOOL_DIR, "assets", "banner_q16seq.txt")) as fh:
         q16 = fh.read().rstrip("\n").split("\n")
-    width = max(len(line) for line in art.split("\n"))
-    pad = " " * max(0, (width - max(len(line) for line in q16)) // 2)
+    art_lines = art.split("\n")
+    wa, wq = max(map(len, art_lines)), max(map(len, q16))
+    pad_q, pad_a = " " * max(0, (wa - wq) // 2), " " * max(0, (wq - wa) // 2)
     print()
-    print(C["gold"] + "\n".join(pad + line for line in q16) + C["off"])
+    print(C["gold"] + "\n".join(pad_q + line for line in q16) + C["off"])
     print()
-    print(C["ruby"] + art + C["off"])
+    print(C["ruby"] + "\n".join(pad_a + line for line in art_lines) + C["off"])
     print(f"{C['grey']}  real-time rRNA amplicon classification + Q16Seq λ quantification  ·  v{VERSION}  ·  "
           f"Lukasz Krych, University of Copenhagen{C['off']}\n")
 
