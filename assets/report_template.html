@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<style>
+  :root {
+    --ruby: #b0123b; --ruby-dark: #7d0c2a; --ku: #901a1e;
+    --ink: #1d1d1f; --muted: #6b6b70; --line: #e4e1e1; --bg: #faf8f8; --card: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+         color: var(--ink); background: var(--bg); }
+  header { background: var(--card); border-bottom: 3px solid var(--ruby);
+           display: flex; align-items: center; justify-content: space-between;
+           gap: 24px; padding: 14px 28px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 16px; }
+  .brand svg { height: 64px; width: auto; }
+  .brand h1 { margin: 0; font-size: 24px; letter-spacing: .5px; }
+  .brand h1 span { color: var(--ruby); }
+  .brand .sub { color: var(--muted); font-size: 13px; }
+  .ku { display: flex; align-items: center; gap: 12px; text-align: right; }
+  .ku svg { height: 60px; width: 60px; }
+  .ku .uni { font-family: Georgia, "Times New Roman", serif; letter-spacing: 2.5px;
+             font-size: 12px; color: var(--ku); }
+  .ku .who { color: var(--muted); font-size: 12.5px; }
+  .brand .tag { display: inline-block; margin-left: 8px; font-size: 12px; font-weight: 600; color: #fff;
+    background: var(--ruby); border-radius: 4px; padding: 1px 6px; vertical-align: middle; letter-spacing: .3px; }
+  main { max-width: 1400px; margin: 0 auto; padding: 20px 28px 40px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .tile .k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .6px; }
+  .tile .v { font-size: 22px; font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .paths { color: var(--muted); font-size: 12px; margin: 10px 2px 0; word-break: break-all; }
+  .paths code { color: var(--ink); }
+  .controls { position: sticky; top: 0; z-index: 5; background: var(--card);
+              border: 1px solid var(--line); border-radius: 8px; margin: 18px 0;
+              padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px;
+              box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+  .ctl label { font-weight: 600; display: block; margin-bottom: 4px; }
+  .ctl .row { display: flex; align-items: center; gap: 12px; }
+  .ctl input[type=range] { flex: 1; accent-color: var(--ruby); }
+  .ctl input[type=number] { width: 110px; padding: 4px 6px; border: 1px solid var(--line);
+                            border-radius: 5px; font: inherit; }
+  .ctl .hint { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+          padding: 14px 16px 6px; margin-bottom: 18px; }
+  .card h2 { font-size: 16px; margin: 0 0 2px; }
+  .card p { margin: 0 0 6px; color: var(--muted); font-size: 12.5px; }
+  .card h3 { font-size: 14px; margin: 18px 0 4px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .lam-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; margin: 10px 0; }
+  .lam-row label { font-weight: 600; }
+  .lam-row input[type=number], .lam-row select, .assign select, .assign input {
+    padding: 4px 6px; border: 1px solid var(--line); border-radius: 5px; font: inherit; background: #fff; }
+  #l1 { width: 140px; }
+  .lam-row .derived { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .lam-row .derived b { color: var(--ink); }
+  button, .btn { font: inherit; font-size: 12.5px; padding: 4px 10px; border: 1px solid var(--line);
+    border-radius: 5px; background: #fff; cursor: pointer; color: var(--ink); }
+  button:hover, .btn:hover { border-color: var(--ruby); color: var(--ruby); }
+  .assign { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 6px 14px;
+    margin: 8px 0 4px; max-height: 260px; overflow: auto; padding: 4px; border: 1px solid var(--line); border-radius: 6px; }
+  .assign .s { display: flex; align-items: center; gap: 6px; font-size: 12.5px; }
+  .assign .s span { width: 58px; font-weight: 600; }
+  .assign input { width: 80px; font-size: 12px; }
+  .assign select { font-size: 12px; }
+  details summary { cursor: pointer; font-weight: 600; margin-top: 6px; }
+  .tblwrap { overflow: auto; max-height: 520px; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 8px; }
+  table.ft { border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+  table.ft th, table.ft td { padding: 3px 8px; border-bottom: 1px solid #eee; text-align: right; white-space: nowrap; }
+  table.ft thead th { position: sticky; top: 0; background: #f4f1f1; z-index: 2; }
+  table.ft th:first-child, table.ft td:first-child { position: sticky; left: 0; background: #fff; text-align: left;
+    max-width: 320px; overflow: hidden; text-overflow: ellipsis; z-index: 1; }
+  table.ft thead th:first-child { z-index: 3; background: #f4f1f1; }
+  table.ft tr.qc td { background: #faf8f8; color: var(--muted); }
+  table.ft tr.qc td:first-child { background: #faf8f8; }
+  table.ft tr.tot td { font-weight: 700; border-top: 2px solid var(--line); }
+  table.ft td.bad { color: #b45309; font-weight: 600; }
+  table.ft td.na { color: #bbb; }
+  .note { color: var(--muted); font-size: 12.5px; margin: 4px 0 8px; }
+  .warn { color: #b45309; font-weight: 600; }
+  footer { color: var(--muted); font-size: 12px; text-align: center; padding: 12px; }
+  @media (max-width: 800px) { .controls { grid-template-columns: 1fr; } header, main { padding-left: 16px; padding-right: 16px; } }
+</style>
+<script>/*__PLOTLY__*/</script>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <!--__RUBYRED_LOGO__-->
+    <div>
+      <h1>RT-<span>RubyRed</span> <span class="tag">Q16Seq</span></h1>
+      <div class="sub" id="runline"></div>
+    </div>
+  </div>
+  <div class="ku">
+    <div>
+      <div class="uni">UNIVERSITY OF COPENHAGEN</div>
+      <div class="who">Lukasz Krych</div>
+    </div>
+    <!--__KU_LOGO__-->
+  </div>
+</header>
+
+<main>
+  <div class="tiles" id="tiles"></div>
+  <div class="paths" id="paths"></div>
+
+  <div class="controls">
+    <div class="ctl">
+      <label for="abR">Minimum relative abundance (%)</label>
+      <div class="row">
+        <input type="range" id="abR" min="0" max="10" step="0.01" value="1">
+        <input type="number" id="abN" min="0" max="100" step="0.01" value="1">
+      </div>
+      <div class="hint" id="abHint"></div>
+    </div>
+    <div class="ctl">
+      <label for="rdR">Minimum classified reads per sample</label>
+      <div class="row">
+        <input type="range" id="rdR" min="0" max="1000" step="1" value="0">
+        <input type="number" id="rdN" min="0" step="1" value="0">
+      </div>
+      <div class="hint" id="rdHint"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Raw reads per BRK barcode</h2>
+    <p>Reads assigned by torchlex to each inner barcode, stacked by batch. Diamonds show classified reads in the feature table. Faded bars are samples below the read threshold.</p>
+    <div id="rawPlot"></div>
+  </div>
+  <div class="card">
+    <h2>Relative abundance, species level</h2>
+    <p>Taxa below the abundance threshold in every shown sample are grouped as “Other”. Taxa not resolved to species are shown at their lowest classified rank.</p>
+    <div id="barPlot"></div>
+  </div>
+  <div class="card">
+    <h2>Rarefaction curves</h2>
+    <p>Expected number of taxa at each sequencing depth, computed analytically without random subsampling. Taxa below the abundance threshold are left out.</p>
+    <div id="rarePlot"></div>
+  </div>
+  <div class="card" id="lamCard">
+    <h2>Absolute quantification with the λ internal standard (Q16Seq)</h2>
+    <p>Each sample is spiked with one of three λ-phage internal standards. Enter the copies of λ1 added per reaction; λ2 and λ3 are 10× and 100× less.
+       For every taxon: <b>16S copies = λ copies added × taxon reads / λ reads</b>. Samples are flagged when λ reads are outside 10–90% of all classified reads (range of quantification).
+       Settings are remembered in this browser.</p>
+    <div id="lamBody"></div>
+  </div>
+</main>
+<footer>Q16Seq · RT-RubyRed v<span id="ver"></span> · RubyRed pipeline (QIIME 2, torchlex) · Lukasz Krych, University of Copenhagen · report generated <span id="gen"></span></footer>
+
+<script>
+const D = /*__DATA__*/null;
+const PALETTE = ["#b0123b","#1f77b4","#ff7f0e","#2ca02c","#9467bd","#8c564b","#e377c2","#17becf",
+  "#bcbd22","#393b79","#e7ba52","#637939","#d6616b","#6baed6","#fd8d3c","#74c476","#9e9ac8",
+  "#843c39","#de9ed6","#3182bd","#e6550d","#31a354","#756bb1","#636363","#8c6d31","#7b4173",
+  "#a55194","#cedb9c","#ad494a","#9ecae1","#fdae6b","#a1d99b","#bcbddc","#e7969c","#c49c94","#f7b6d2"];
+const OTHER = "#c8c4c4";
+const fmt = n => n.toLocaleString("en-US");
+const S = D.samples, T = D.taxa, M = D.counts;           // M[taxon][sample]
+const colTot = S.map((_, j) => M.reduce((a, r) => a + r[j], 0));
+const rawTot = S.map(s => Object.values(D.raw[s] || {}).reduce((a, b) => a + b, 0));
+// stable colour per taxon, by overall abundance
+const order = T.map((_, i) => i).sort((a, b) =>
+  M[b].reduce((x, y) => x + y, 0) - M[a].reduce((x, y) => x + y, 0));
+const colour = {}; order.forEach((i, k) => colour[i] = PALETTE[k % PALETTE.length]);
+
+document.getElementById("runline").textContent = `${D.meta.run} · ${D.meta.dir}`;
+document.getElementById("gen").textContent = D.meta.updated;
+document.getElementById("ver").textContent = D.meta.version || "";
+document.getElementById("paths").innerHTML =
+  `Input <code>${esc(D.meta.watch)}</code> &nbsp;·&nbsp; Output <code>${esc(D.meta.out)}</code> &nbsp;·&nbsp; started ${esc(D.meta.started)}`;
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+const tiles = [["Batches", D.batches.length], ["Input files", fmt(D.meta.files)],
+  ["Samples (BRK)", S.length], ["Raw reads", fmt(D.meta.raw_total)],
+  ["Classified reads", fmt(colTot.reduce((a, b) => a + b, 0))], ["Taxa", T.length],
+  ["Last update", D.meta.updated.slice(5)]];
+document.getElementById("tiles").innerHTML = tiles.map(([k, v]) =>
+  `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+
+// controls: slider and number box stay in sync
+const maxRead = Math.max(1, ...colTot);
+const rdR = document.getElementById("rdR"); rdR.max = maxRead;
+rdR.step = Math.max(1, Math.round(maxRead / 1000));
+function link(r, n, clampMax) {
+  r.addEventListener("input", () => { n.value = r.value; schedule(); });
+  n.addEventListener("input", () => {
+    let v = parseFloat(n.value); if (isNaN(v)) return;
+    if (v > parseFloat(r.max) && !clampMax) r.max = v;
+    r.value = v; schedule();
+  });
+}
+link(document.getElementById("abR"), document.getElementById("abN"), false);
+link(rdR, document.getElementById("rdN"), true);
+let pending = null;
+function schedule() { if (!pending) pending = requestAnimationFrame(() => { pending = null; update(); }); }
+
+const cfg = {displaylogo: false, responsive: true,
+  toImageButtonOptions: {format: "svg", filename: `RT-RubyRed_${D.meta.run}_${D.meta.dir}`}};
+const baseLayout = {margin: {l: 60, r: 20, t: 10, b: 70}, font: {size: 12},
+  paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+  xaxis: {tickangle: -60, automargin: true}, yaxis: {gridcolor: "#eee", automargin: true}};
+
+// ---- rarefaction (Hurlbert expected richness)
+function lgamma(x) {
+  const g = 7, c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (x < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * x)) - lgamma(1 - x);
+  x -= 1; let a = c[0]; const t = x + g + 0.5;
+  for (let i = 1; i < g + 2; i++) a += c[i] / (x + i);
+  return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a);
+}
+const lnC = (n, k) => lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1);
+function rarefy(counts) {
+  const c = counts.filter(x => x > 0), N = c.reduce((a, b) => a + b, 0);
+  if (!N) return {x: [], y: []};
+  const steps = Math.min(40, N), xs = [], ys = [];
+  for (let s = 0; s <= steps; s++) {
+    const n = Math.round(N * s / steps); let e = 0;
+    const base = lnC(N, n);
+    for (const ni of c) e += (N - ni < n) ? 1 : 1 - Math.exp(lnC(N - ni, n) - base);
+    xs.push(n); ys.push(e);
+  }
+  return {x: xs, y: ys};
+}
+
+function update() {
+  const thr = parseFloat(document.getElementById("abN").value) || 0;
+  const minR = parseFloat(document.getElementById("rdN").value) || 0;
+  const keepS = S.map((_, j) => colTot[j] > 0 && colTot[j] >= minR);
+  const sIdx = S.map((_, j) => j).filter(j => keepS[j]);
+  // relative abundance per kept sample
+  const rel = M.map(r => sIdx.map(j => 100 * r[j] / colTot[j]));
+  const keepT = rel.map(r => r.length > 0 && Math.max(...r) >= thr);
+  const shownT = order.filter(i => keepT[i]);
+  document.getElementById("abHint").textContent =
+    `${shownT.length} of ${T.length} taxa shown · ${T.length - shownT.length} grouped as Other`;
+  document.getElementById("rdHint").textContent =
+    `${sIdx.length} of ${S.length} samples shown`;
+
+  // 1. raw reads
+  const rawTraces = D.batches.map((b, k) => ({
+    type: "bar", name: b, x: S, y: S.map(s => (D.raw[s] || {})[b] || 0),
+    marker: {color: `hsl(345, 75%, ${Math.round(28 + 50 * k / Math.max(1, D.batches.length))}%)`,
+             opacity: S.map((_, j) => keepS[j] ? 1 : 0.22)},
+    hovertemplate: `%{x} · ${b}: %{y:,} reads<extra></extra>`}));
+  rawTraces.push({type: "scatter", mode: "markers", name: "classified", x: S, y: colTot,
+    marker: {symbol: "diamond", size: 7, color: "#1d1d1f"},
+    hovertemplate: "%{x} classified: %{y:,}<extra></extra>"});
+  Plotly.react("rawPlot", rawTraces, {...baseLayout, height: 380, barmode: "stack",
+    legend: {orientation: "h", y: 1.12}, yaxis: {...baseLayout.yaxis, title: "reads"}}, cfg);
+
+  // 2. species barplot
+  const xs = sIdx.map(j => S[j]);
+  const bars = shownT.map(i => ({type: "bar", name: T[i], x: xs, y: sIdx.map(j => 100 * M[i][j] / colTot[j]),
+    marker: {color: colour[i]}, customdata: sIdx.map(j => M[i][j]),
+    hovertemplate: `<b>${esc(T[i])}</b><br>%{x}: %{y:.2f}% (%{customdata:,} reads)<extra></extra>`}));
+  const other = sIdx.map(j => T.reduce((a, _, i) => keepT[i] ? a : a + 100 * M[i][j] / colTot[j], 0));
+  if (other.some(v => v > 0))
+    bars.push({type: "bar", name: `Other (< ${thr}%)`, x: xs, y: other, marker: {color: OTHER},
+      hovertemplate: "Other: %{y:.2f}%<extra></extra>"});
+  Plotly.react("barPlot", bars, {...baseLayout, height: 600, barmode: "stack", bargap: 0.15,
+    yaxis: {...baseLayout.yaxis, title: "relative abundance (%)", range: [0, 100]},
+    legend: {font: {size: 11}, traceorder: "normal"}}, cfg);
+
+  // 3. rarefaction
+  const lines = sIdx.map((j, k) => {
+    const r = rarefy(M.map((row, i) => keepT[i] ? row[j] : 0));
+    return {type: "scatter", mode: "lines", name: S[j], x: r.x, y: r.y,
+      line: {width: 1.6, color: PALETTE[k % PALETTE.length]},
+      hovertemplate: `${S[j]}<br>%{x:,} reads → %{y:.1f} taxa<extra></extra>`};
+  });
+  Plotly.react("rarePlot", lines, {...baseLayout, height: 480,
+    margin: {...baseLayout.margin, b: 50},
+    xaxis: {title: "reads sampled", gridcolor: "#eee"}, yaxis: {...baseLayout.yaxis, title: "observed taxa"},
+    legend: {font: {size: 11}}}, cfg);
+
+  // 4. lambda quantification
+  renderLambdaTables(sIdx, thr);
+}
+
+// ================================================================ λ internal standard
+const L = D.lambda || {rows: [], map: {}, roq: [0.1, 0.9]};
+const lamSet = new Set(L.rows);
+const lamReads = S.map((_, j) => L.rows.reduce((a, i) => a + M[i][j], 0));
+const bactTot = S.map((_, j) => colTot[j] - lamReads[j]);
+const LS_KEY = `q16seq:${D.meta.run}:${D.meta.dir}`;
+let lamState = {l1: L.l1 ?? null, map: {}};
+S.forEach(s => { const m = (L.map || {})[s]; lamState.map[s] = {level: m ? m.level : 0, group: m ? (m.group || "") : ""}; });
+try {
+  const saved = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+  if (saved && saved.l1 != null) lamState.l1 = saved.l1;
+  if (saved && saved.map) for (const s of S) if (saved.map[s]) lamState.map[s] = saved.map[s];
+} catch (e) { /* storage unavailable: use defaults */ }
+function saveLam() { try { localStorage.setItem(LS_KEY, JSON.stringify(lamState)); } catch (e) {} }
+const sci = v => v == null || !isFinite(v) ? "–" : v === 0 ? "0" :
+  (Math.abs(v) >= 1000 || Math.abs(v) < 0.01 ? v.toExponential(2).replace("e+", "e") : v.toFixed(2));
+const lamCopies = lvl => lamState.l1 > 0 && lvl ? lamState.l1 / Math.pow(10, lvl - 1) : null;
+
+function buildLambdaControls() {
+  const body = document.getElementById("lamBody");
+  if (!L.rows.length) {
+    body.innerHTML = `<p class="warn">No λ internal-standard reads in this feature table.</p>
+      <p class="note">Check that the classifier contains the λ reference (taxonomy <code>S__lambda_standard</code>) and that reads were not
+      primer-trimmed to the 341F–1390R region (the λ standard has no 341F site). The Q16Seq setup uses the pinned RubyRed_Q16Seq install.</p>`;
+    return false;
+  }
+  const opts = `<option value="0">—</option><option value="1">λ1</option><option value="2">λ2</option><option value="3">λ3</option>`;
+  body.innerHTML = `
+    <div class="lam-row">
+      <label for="l1">λ1 copies per reaction</label>
+      <input type="number" id="l1" min="0" step="any" placeholder="e.g. 7.7e6">
+      <span class="derived">λ2 = <b id="l2v">–</b> · λ3 = <b id="l3v">–</b></span>
+    </div>
+    <div class="lam-row">
+      <span>Set all samples to <select id="bulkLvl">${opts}</select> <button id="bulkBtn">Apply</button></span>
+      <button id="cycleBtn" title="BRK01 = λ1, BRK02 = λ2, BRK03 = λ3, BRK04 = λ1 …">Repeat λ1, λ2, λ3 across samples</button>
+      <label class="btn">Import mapping (TSV)<input type="file" id="mapFile" accept=".tsv,.csv,.txt" hidden></label>
+      <button id="mapExport">Export mapping</button>
+    </div>
+    <details open><summary id="assignSum"></summary>
+      <p class="note">Optional <b>group</b>: wells of the same sample (e.g. its λ1, λ2 and λ3 wells) share a group name and are averaged in the last table.</p>
+      <div class="assign" id="assign">${S.map((s, j) => `<div class="s"><span>${esc(s)}</span>
+        <select data-s="${esc(s)}">${opts}</select><input data-g="${esc(s)}" placeholder="group"></div>`).join("")}</div>
+    </details>
+    <h3>Relative feature table <span class="note">bacterial taxa as % of bacterial reads (λ excluded)</span>
+      <button id="relCsv">Download CSV</button></h3>
+    <div class="tblwrap" id="relTbl"></div>
+    <h3>Quantitative feature table <span class="note">16S rRNA gene copies per reaction</span>
+      <button id="absCsv">Download CSV</button></h3>
+    <div class="tblwrap" id="absTbl"></div>
+    <div id="grpBlock"></div>`;
+  const l1 = document.getElementById("l1");
+  if (lamState.l1 != null) l1.value = lamState.l1;
+  l1.addEventListener("input", () => { const v = parseFloat(l1.value); lamState.l1 = isFinite(v) && v > 0 ? v : null; saveLam(); schedule(); });
+  document.querySelectorAll("#assign select").forEach(sel => {
+    sel.value = lamState.map[sel.dataset.s].level || 0;
+    sel.addEventListener("change", () => { lamState.map[sel.dataset.s].level = +sel.value; saveLam(); schedule(); });
+  });
+  document.querySelectorAll("#assign input").forEach(inp => {
+    inp.value = lamState.map[inp.dataset.g].group || "";
+    inp.addEventListener("input", () => { lamState.map[inp.dataset.g].group = inp.value.trim(); saveLam(); schedule(); });
+  });
+  document.getElementById("bulkBtn").addEventListener("click", () => {
+    const v = +document.getElementById("bulkLvl").value; S.forEach(s => lamState.map[s].level = v); syncAssign(); });
+  document.getElementById("cycleBtn").addEventListener("click", () => {
+    S.forEach((s, j) => lamState.map[s].level = (j % 3) + 1); syncAssign(); });
+  document.getElementById("mapFile").addEventListener("change", ev => {
+    const f = ev.target.files[0]; if (!f) return;
+    f.text().then(txt => { importMap(txt); ev.target.value = ""; });
+  });
+  document.getElementById("mapExport").addEventListener("click", () =>
+    download(`${fileBase()}_lambda_map.tsv`, "sample\tlambda\tgroup\n" +
+      S.map(s => `${s}\t${lamState.map[s].level ? "L" + lamState.map[s].level : ""}\t${lamState.map[s].group || ""}`).join("\n") + "\n"));
+  document.getElementById("relCsv").addEventListener("click", () => download(`${fileBase()}_relative_bacteria.csv`, TABLES.rel));
+  document.getElementById("absCsv").addEventListener("click", () => download(`${fileBase()}_quantitative_copies.csv`, TABLES.abs));
+  return true;
+}
+function syncAssign() {
+  document.querySelectorAll("#assign select").forEach(sel => sel.value = lamState.map[sel.dataset.s].level || 0);
+  document.querySelectorAll("#assign input").forEach(inp => inp.value = lamState.map[inp.dataset.g].group || "");
+  saveLam(); schedule();
+}
+function importMap(txt) {
+  const lv = {"1": 1, "L1": 1, "L01": 1, "Λ1": 1, "LAMBDA1": 1, "2": 2, "L2": 2, "L02": 2, "Λ2": 2, "LAMBDA2": 2,
+              "3": 3, "L3": 3, "L03": 3, "Λ3": 3, "LAMBDA3": 3, "0": 0, "": 0, "-": 0, "NONE": 0};
+  let n = 0;
+  txt.split(/\r?\n/).forEach(line => {
+    if (!line.trim() || line.startsWith("#")) return;
+    const c = line.split(/[\t,;]/).map(x => x.trim());
+    if (!(c[0] in lamState.map)) return;
+    const l = lv[(c[1] || "").toUpperCase().replace(/\s/g, "")];
+    if (l === undefined) return;
+    lamState.map[c[0]] = {level: l, group: c[2] || ""}; n++;
+  });
+  syncAssign();
+  alertLine(`${n} sample(s) imported from mapping file`);
+}
+function alertLine(msg) { document.getElementById("assignSum").textContent = msg; setTimeout(schedule, 2500); }
+function fileBase() { return `Q16Seq_${D.meta.run}_${D.meta.dir}`.replace(/[^\w.-]+/g, "_"); }
+function download(name, text) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], {type: "text/plain"}));
+  a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+const csvCell = v => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v);
+const TABLES = {rel: "", abs: ""};
+
+function htmlTable(head, qcRows, rows, totRow, cellFmt) {
+  let h = `<table class="ft"><thead><tr>${head.map(x => `<th>${esc(x)}</th>`).join("")}</tr></thead><tbody>`;
+  qcRows.forEach(r => h += `<tr class="qc">${r.map((x, k) => k === 0 ? `<td>${esc(x)}</td>` :
+    `<td class="${x && x.cls || ""}">${esc(x && x.t !== undefined ? x.t : x)}</td>`).join("")}</tr>`);
+  rows.forEach(r => h += `<tr><td title="${esc(r[0])}">${esc(r[0])}</td>${r.slice(1).map(v =>
+    v == null ? `<td class="na">–</td>` : `<td>${cellFmt(v)}</td>`).join("")}</tr>`);
+  if (totRow) h += `<tr class="tot"><td>${esc(totRow[0])}</td>${totRow.slice(1).map(v =>
+    v == null ? `<td class="na">–</td>` : `<td>${cellFmt(v)}</td>`).join("")}</tr>`;
+  return h + "</tbody></table>";
+}
+
+function renderLambdaTables(sIdx, thr) {
+  if (!L.rows.length) return;
+  const nAss = S.filter(s => lamState.map[s].level).length;
+  document.getElementById("assignSum").textContent = `λ standard per sample (${nAss} of ${S.length} assigned)`;
+  const l1 = lamState.l1;
+  document.getElementById("l2v").textContent = l1 ? sci(l1 / 10) : "–";
+  document.getElementById("l3v").textContent = l1 ? sci(l1 / 100) : "–";
+  const xs = sIdx.map(j => S[j]);
+  // bacterial taxa above threshold (relative to bacterial reads) in any shown sample
+  const bIdx = T.map((_, i) => i).filter(i => !lamSet.has(i));
+  const relB = i => sIdx.map(j => bactTot[j] ? 100 * M[i][j] / bactTot[j] : 0);
+  const shown = order.filter(i => !lamSet.has(i) && Math.max(0, ...relB(i)) >= thr);
+  const hidden = bIdx.filter(i => !shown.includes(i));
+  const otherRow = j => hidden.reduce((a, i) => a + M[i][j], 0);
+  // per-sample λ info
+  const info = sIdx.map(j => {
+    const s = S[j], lvl = lamState.map[s].level, c = lamCopies(lvl), lr = lamReads[j];
+    const f = colTot[j] ? lr / colTot[j] : 0;
+    let status = !lvl ? "no λ level" : !lr ? "no λ reads" : !c ? "enter λ1" :
+      (f >= L.roq[0] && f <= L.roq[1]) ? "ok" : "outside ROQ";
+    return {s, lvl, c, lr, f, status, k: c && lr ? c / lr : null};
+  });
+  const qcHead = ["", ...xs];
+  const qc = [
+    ["λ standard", ...info.map(x => x.lvl ? "λ" + x.lvl : "–")],
+    ["λ copies added", ...info.map(x => sci(x.c))],
+    ["λ reads", ...info.map(x => fmt(x.lr))],
+    ["bacterial reads", ...sIdx.map(j => fmt(bactTot[j]))],
+    ["λ % of reads", ...info.map(x => ({t: (100 * x.f).toFixed(1) + "%", cls: x.lr && (x.f < L.roq[0] || x.f > L.roq[1]) ? "bad" : ""}))],
+    ["QC", ...info.map(x => ({t: x.status, cls: x.status === "ok" ? "" : "bad"}))],
+  ];
+  // relative table
+  const relRows = shown.map(i => [T[i], ...sIdx.map(j => bactTot[j] ? 100 * M[i][j] / bactTot[j] : null)]);
+  if (hidden.length) relRows.push([`Other (< ${thr}%)`, ...sIdx.map(j => bactTot[j] ? 100 * otherRow(j) / bactTot[j] : null)]);
+  document.getElementById("relTbl").innerHTML = htmlTable(["Taxon", ...xs], qc.slice(2, 4), relRows, null, v => v.toFixed(2));
+  TABLES.rel = [["taxon", ...xs], ...relRows.map(r => [r[0], ...r.slice(1).map(v => v == null ? "" : v.toFixed(4))])]
+    .map(r => r.map(csvCell).join(",")).join("\n") + "\n";
+  // quantitative table: samples with a λ level only
+  const qk = info.map((x, k) => k).filter(k => info[k].lvl);
+  const qInfo = qk.map(k => info[k]), qJ = qk.map(k => sIdx[k]), qxs = qk.map(k => xs[k]);
+  const qcQ = qc.map(r => [r[0], ...qk.map(k => r[k + 1])]);
+  const absRows = shown.map(i => [T[i], ...qInfo.map((x, n) => x.k != null ? M[i][qJ[n]] * x.k : null)]);
+  if (hidden.length) absRows.push([`Other (< ${thr}%)`, ...qInfo.map((x, n) => x.k != null ? otherRow(qJ[n]) * x.k : null)]);
+  const tot = ["Total bacterial 16S copies", ...qInfo.map((x, n) => x.k != null ? bactTot[qJ[n]] * x.k : null)];
+  const nNo = xs.length - qxs.length;
+  document.getElementById("absTbl").innerHTML =
+    (!qxs.length ? `<p class="note warn" style="padding:6px 8px">Assign a λ standard (λ1, λ2 or λ3) to the samples above.</p>` :
+     !l1 ? `<p class="note warn" style="padding:6px 8px">Enter the λ1 copy number above to calculate copies.</p>` :
+     nNo ? `<p class="note" style="padding:6px 8px">${nNo} shown sample(s) without a λ standard are not listed.</p>` : "") +
+    (qxs.length ? htmlTable(["Taxon", ...qxs], qcQ, absRows, tot, sci) : "");
+  TABLES.abs = [["taxon", ...qxs], ...qcQ.map(r => [r[0], ...r.slice(1).map(x => x && x.t !== undefined ? x.t : x)]),
+    ...absRows, tot].map((r, ri) => ri > qcQ.length ? [r[0], ...r.slice(1).map(v => v == null ? "" : v.toPrecision(4))] : r)
+    .map(r => r.map(csvCell).join(",")).join("\n") + "\n";
+  // group means (mean over wells with QC ok; if none ok, mean over all quantified wells, marked *)
+  const groups = {};
+  info.forEach((x, k) => { const g = lamState.map[x.s].group; if (g && x.k != null) (groups[g] = groups[g] || []).push({...x, j: sIdx[k]}); });
+  const gNames = Object.keys(groups).sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+  const gb = document.getElementById("grpBlock");
+  if (!gNames.length) { gb.innerHTML = ""; return; }
+  const gUse = gNames.map(g => { const ok = groups[g].filter(x => x.status === "ok"); return ok.length ? {w: ok, flag: ""} : {w: groups[g], flag: "*"}; });
+  const gHead = ["Taxon", ...gNames.map((g, n) => g + gUse[n].flag)];
+  const gq = [["wells averaged", ...gUse.map(u => ({t: `${u.w.length} (${[1, 2, 3].map(l => u.w.filter(x => x.lvl === l).length ? "λ" + l + "×" + u.w.filter(x => x.lvl === l).length : "").filter(Boolean).join(" ")})`}))]];
+  const gqCsv = [["wells averaged", ...gUse.map(u => u.w.map(x => x.s + " (λ" + x.lvl + ")").join("; "))]];
+  const mean = (u, f) => u.w.reduce((a, x) => a + f(x), 0) / u.w.length;
+  const gRows = shown.map(i => [T[i], ...gUse.map(u => mean(u, x => M[i][x.j] * x.k))]);
+  if (hidden.length) gRows.push([`Other (< ${thr}%)`, ...gUse.map(u => mean(u, x => otherRow(x.j) * x.k))]);
+  const gTot = ["Total bacterial 16S copies", ...gUse.map(u => mean(u, x => bactTot[x.j] * x.k))];
+  gb.innerHTML = `<h3>Quantitative feature table per group <span class="note">mean of the group's wells that pass QC (λ 10–90%);
+    * = no well passed, all quantified wells averaged</span><button id="grpCsv">Download CSV</button></h3>
+    <div class="tblwrap">${htmlTable(gHead, gq, gRows, gTot, sci)}</div>`;
+  const gcsv = [gHead, ...gqCsv, ...gRows.map(r => [r[0], ...r.slice(1).map(v => v.toPrecision(4))]),
+    [gTot[0], ...gTot.slice(1).map(v => v.toPrecision(4))]].map(r => r.map(csvCell).join(",")).join("\n") + "\n";
+  document.getElementById("grpCsv").addEventListener("click", () => download(`${fileBase()}_quantitative_per_group.csv`, gcsv));
+}
+buildLambdaControls();
+update();
+</script>
+</body>
+</html>

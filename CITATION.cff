@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use Q16Seq, please cite the Q16Seq paper and this software, together with RubyRed, QIIME 2 and the MIMt database."
+title: "Q16Seq: real-time quantitative near full-length 16S rRNA gene analysis with a lambda internal standard (RT-RubyRed)"
+version: 1.1.0
+date-released: 2026-11-11
+license: MIT
+repository-code: "https://github.com/krychu84/Q16Seq"
+authors:
+  - family-names: Krych
+    given-names: Lukasz
+    affiliation: "Department of Food Science, University of Copenhagen"

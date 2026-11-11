@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 104" role="img" aria-label="RubyRed">
+  <polygon points="30,4 90,4 116,34 60,100 4,34" fill="#b0123b"/>
+  <polygon points="30,4 44,34 4,34" fill="#d62a55"/>
+  <polygon points="30,4 90,4 76,34 44,34" fill="#e8476f"/>
+  <polygon points="90,4 116,34 76,34" fill="#c11a45"/>
+  <polygon points="4,34 44,34 60,100" fill="#8e0d30"/>
+  <polygon points="44,34 76,34 60,100" fill="#b0123b"/>
+  <polygon points="76,34 116,34 60,100" fill="#6f0925"/>
+  <polygon points="36,8 52,8 42,26" fill="#ffffff" opacity=".35"/>
+</svg>
