@@ -2,16 +2,29 @@
 
 **Quantitative near full-length 16S rRNA gene sequencing on Oxford Nanopore, analysed in real time.**
 
+```
+                 ██████╗  ██╗ ██████╗ ███████╗███████╗ ██████╗
+                ██╔═══██╗███║██╔════╝ ██╔════╝██╔════╝██╔═══██╗
+                ██║   ██║╚██║███████╗ ███████╗█████╗  ██║   ██║
+                ██║▄▄ ██║ ██║██╔═══██╗╚════██║██╔══╝  ██║▄▄ ██║
+                ╚██████╔╝ ██║╚██████╔╝███████║███████╗╚██████╔╝
+                 ╚══▀▀═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝ ╚══▀▀═╝
+██████╗ ████████╗    ██████╗ ██╗   ██╗██████╗ ██╗   ██╗██████╗ ███████╗██████╗
+██╔══██╗╚══██╔══╝    ██╔══██╗██║   ██║██╔══██╗╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗
+██████╔╝   ██║ █████╗██████╔╝██║   ██║██████╔╝ ╚████╔╝ ██████╔╝█████╗  ██║  ██║
+██╔══██╗   ██║ ╚════╝██╔══██╗██║   ██║██╔══██╗  ╚██╔╝  ██╔══██╗██╔══╝  ██║  ██║
+██║  ██║   ██║       ██║  ██║╚██████╔╝██████╔╝   ██║   ██║  ██║███████╗██████╔╝
+╚═╝  ╚═╝   ╚═╝       ╚═╝  ╚═╝ ╚═════╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝╚══════╝╚═════╝
+```
+
 Q16Seq spikes every sample with a synthetic λ-phage internal standard (λ-IS) before PCR. The λ-IS carries 16S primer sites, so it is amplified, barcoded and sequenced together with the bacterial 16S rRNA genes. Because the number of λ-IS copies added is known, read counts can be converted into **absolute 16S rRNA gene copies** per taxon.
 
-This repository contains the Q16Seq analysis tool. It is built on **RT-RubyRed** (v1.1), which runs the [RubyRed](https://github.com/reillyeo/RubyRed) pipeline *while the sequencer is still running*:
+This repository contains the Q16Seq analysis tool, built on **RT-RubyRed** (v1.1). RT-RubyRed runs the [RubyRed](https://github.com/reillyeo/RubyRed) pipeline while the nanopore sequencer is still running. It watches the folder MinKNOW writes `*.fastq.gz` files into, analyses each new batch of files as it arrives, and keeps a merged feature table and an interactive HTML report up to date for the whole run.
 
-- It watches the folder MinKNOW writes `*.fastq.gz` files into.
-- It demultiplexes each new batch of files with torchlex (inner barcodes `BRK01`–`BRK192`) and classifies it with RubyRed against a species-level MIMt 16S classifier that includes the λ standard.
-- It keeps a merged feature table and an interactive HTML report up to date.
+- Each batch is demultiplexed with torchlex (inner barcodes `BRK01`–`BRK192`) and classified with RubyRed against a species-level MIMt 16S classifier that includes the λ standard.
 - The report has a **λ quantification panel**: enter the λ1 copy number and which standard each sample received, and it shows relative and absolute (copies per reaction) feature tables.
 
-Reference: Wagner, Zimmermann *et al.* (2026), *Microbial quality and safety of plant-based meat alternatives assessed by culture-based methods and quantitative 16S gene amplicon sequencing* (submitted).
+Reference: Wagner, Zimmermann *et al.* (2026), *Culture-based and quantitative Nanopore 16S rRNA gene sequencing insights into microbial quality and safety of plant-based meat alternatives* (submitted).
 
 ![report](docs/report.png)
 
@@ -228,6 +241,23 @@ test/simulate_run.sh /path/to/fastq_pass/barcodeNN /tmp/q16_watch 10 120
 # terminal 2
 Q16Seq -w /tmp/q16_watch -n TEST -o /tmp/q16_out --poll 20 --settle 5
 ```
+
+### Synthetic training data
+
+`test/make_synthetic_run.py` simulates a complete Q16Seq run with known truth: **32 samples × 3 λ standards = 96 inner-barcoded wells** (BRK01–BRK96; sample *i* in BRK3*i*−2 … BRK3*i* with λ1, λ2, λ3).
+
+- Total bacterial 16S copies per reaction are log-spaced from 10³ to 10⁷; each sample has a random community of 3–10 of 12 reference taxa (the eight ZymoBIOMICS bacteria plus *Pantoea agglomerans*, *Lactiplantibacillus plantarum*, *Serratia liquefaciens* and *Klebsiella terrigena*; 16S sequences from NCBI RefSeq, `test/synthetic_refs/`).
+- The λ-IS read is the λ-phage region amplified by the Q16Seq IS-F/IS-R primers (1,344 bp with its 16S tails).
+- About 10,000 reads per well, drawn in proportion to copies; ~2 % Nanopore-like errors, both read orientations, plus a few percent short fragments and reads without barcode.
+- Output is a MinKNOW-like `fastq_pass/barcode01/*.fastq.gz` folder plus `truth_copies_per_reaction.tsv`, `truth_reads_per_well.tsv`, `samples.tsv` and `lambda_map.tsv`.
+
+```bash
+python test/make_synthetic_run.py -o synthetic_run          # ~1.07 million reads, ~1.5 GB, ~4 min
+Q16Seq -w synthetic_run/fastq_pass/barcode01 -n SYNTHETIC --settle 0 --idle-stop 0.05 \
+       --subsample 10000 --lambda1 7.7e6 --lambda-map synthetic_run/lambda_map.tsv
+```
+
+torchlex assigns the synthetic reads to the correct wells. With λ1 = 7.7 × 10⁶ copies, wells inside the 10–90 % λ range recover the true total 16S copy number to within ±4 % (median estimate/truth 0.995). Samples below ~10⁴ copies have no well inside the range, which is the lower limit of the assay.
 
 To try the report and the Q16Seq tables on a finished analysis without running the classifier:
 

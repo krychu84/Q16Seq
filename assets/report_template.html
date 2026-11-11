@@ -17,7 +17,10 @@
            gap: 24px; padding: 14px 28px; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 16px; }
   .brand svg { height: 64px; width: auto; }
-  .brand h1 { margin: 0; font-size: 24px; letter-spacing: .5px; }
+  .brand h1 { margin: 0; font-size: 34px; letter-spacing: .5px; line-height: 1.05; font-weight: 800; }
+  .brand .lam { font-size: 26px; color: #e08a00; margin-left: 6px; font-weight: 700; }
+  .brand .powered { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+  .brand .powered b { color: var(--ruby); }
   .brand h1 span { color: var(--ruby); }
   .brand .sub { color: var(--muted); font-size: 13px; }
   .ku { display: flex; align-items: center; gap: 12px; text-align: right; }
@@ -90,7 +93,8 @@
   <div class="brand">
     <!--__RUBYRED_LOGO__-->
     <div>
-      <h1>RT-<span>RubyRed</span> <span class="tag">Q16Seq</span></h1>
+      <h1>Q16<span>Seq</span><span class="lam">λ</span></h1>
+      <div class="powered">quantitative 16S rRNA gene sequencing · powered by RT-<b>RubyRed</b></div>
       <div class="sub" id="runline"></div>
     </div>
   </div>
