@@ -70,6 +70,7 @@ The λ1 copy number comes from your own calibration of the λ-IS stock (for exam
 
 - Linux (tested on Ubuntu 22.04).
 - A `qiime2` conda environment as used by RubyRed, containing `qiime` (tested with QIIME 2 2024.5, scikit-learn 1.4.2), `torchlex`, `cutadapt`, `chopper`, `vsearch`, `seqkit`, GNU `parallel` and `biom`, plus Python packages `pandas` and `psutil`.
+- RAM: each classifier worker loads the species classifier (~15 GB). Q16Seq runs RubyRed's classifier with 2 workers when its RAM cap (50 % by default) is at least 40 GB, otherwise 1 (environment variable `RUBYRED_NJOBS`; the pinned RubyRed must use `--p-n-jobs ${RUBYRED_NJOBS:-2}`, see Installation).
 - `systemd-run` (standard on Ubuntu) to enforce the RAM limit. Without it the tool still runs, but the RAM limit is not enforced.
 
 ## Installation
@@ -82,6 +83,8 @@ The λ1 copy number comes from your own calibration of the λ-IS stock (for exam
 mkdir -p ~/my_scripts && cd ~/my_scripts
 git clone https://github.com/reillyeo/RubyRed.git RubyRed_Q16Seq
 cd RubyRed_Q16Seq && git checkout 522dd3d
+# let Q16Seq choose the number of classifier workers (memory: ~15 GB per worker)
+sed -i 's/--p-n-jobs 2$/--p-n-jobs ${RUBYRED_NJOBS:-2}/' RubyRed
 ```
 
 Then follow the [RubyRed instructions](https://github.com/reillyeo/RubyRed) to create its `qiime2` conda environment (with torchlex). Check that the environment has everything Q16Seq needs:

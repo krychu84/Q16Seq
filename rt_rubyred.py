@@ -731,6 +731,9 @@ def main(argv=None):
         else:
             sys.exit(f"{C['red']}Classifier not found: {args.classifier}{C['off']}")
     res = Resources(args.cpu_frac, args.mem_frac)
+    # Each classify-sklearn worker loads its own copy of the classifier (~15 GB for the
+    # species classifier): use one worker when the RAM cap is small.
+    os.environ.setdefault("RUBYRED_NJOBS", "1" if res.mem_limit < 40 * 2**30 else "2")
     run = Run(args)
     LOG_FH = open(os.path.join(run.out, "RT-RubyRed.log"), "a")
 
@@ -746,7 +749,7 @@ def main(argv=None):
           f"(pinned {res.cpus[0]}-{res.cpus[-1]}), RAM cap {human_bytes(res.mem_limit)} of "
           f"{human_bytes(res.mem_total)} "
           f"{'(cgroup enforced)' if res.scope_ok else '(NOT enforced: systemd-run unavailable)'}"
-          f", nice 10 / ionice idle-ish")
+          f", nice 10 / ionice idle-ish; classifier workers {os.environ['RUBYRED_NJOBS']}")
     clf = classifier_args(args)
     print(f"{k}  RubyRed{o}      {args.rubyred}")
     print(f"{k}  Classifier{o}   {os.path.basename(clf[1]) if clf else 'RubyRed default'}")
